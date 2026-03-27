@@ -43,9 +43,6 @@ def send_telegram(project):
 📌 *العنوان:* {project['title']}
 💰 *الميزانية:* {project['budget']}
 ⏳ *المدة:* {project['duration']}
-
-📝 *الوصف:*
-{project['description'][:300]}...
 """
 
         data = {
@@ -113,26 +110,38 @@ def get_project_details(link):
         res = requests.get(link, headers=headers)
         soup = BeautifulSoup(res.text, "html.parser")
 
-        # الوصف
-        desc = soup.select_one(".project-description")
-        description = desc.text.strip() if desc else "غير متوفر"
+        # جلب الميزانية من sidebar (نطاق السعر الكامل)
+        budget = "غير محدد"
+        try:
+            budget_elem = soup.select_one("td:contains('الميزانية') + td")
+            if not budget_elem:
+                # بديل لو الدعم لـ contains غير موجود في المكتبة
+                all_td = soup.find_all("td")
+                for i, td in enumerate(all_td):
+                    if "الميزانية" in td.text:
+                        budget_elem = all_td[i+1] if i+1 < len(all_td) else None
+                        break
+            if budget_elem:
+                budget = budget_elem.text.strip()
+        except:
+            pass
 
-        # الميزانية
-        budget = soup.find(text=lambda t: "ميزانية المشروع" in t)
-        if budget:
-            budget = budget.find_next().text.strip()
-        else:
-            budget = "غير محدد"
-
-        # المدة
-        duration = soup.find(text=lambda t: "مدة التنفيذ" in t)
-        if duration:
-            duration = duration.find_next().text.strip()
-        else:
-            duration = "غير محدد"
+        # جلب مدة التنفيذ من sidebar
+        duration = "غير محدد"
+        try:
+            duration_elem = soup.select_one("td:contains('مدة التنفيذ') + td")
+            if not duration_elem:
+                all_td = soup.find_all("td")
+                for i, td in enumerate(all_td):
+                    if "مدة التنفيذ" in td.text:
+                        duration_elem = all_td[i+1] if i+1 < len(all_td) else None
+                        break
+            if duration_elem:
+                duration = duration_elem.text.strip()
+        except:
+            pass
 
         return {
-            "description": description,
             "budget": budget,
             "duration": duration
         }
@@ -140,7 +149,6 @@ def get_project_details(link):
     except Exception as e:
         print("Details Error:", e)
         return {
-            "description": "خطأ في جلب الوصف",
             "budget": "؟",
             "duration": "؟"
         }
@@ -159,7 +167,7 @@ def is_new(project):
 # ==============================
 # 🔁 تشغيل البوت
 # ==============================
-print("🚀 Bot is running (FULL DATA)...")
+print("🚀 Bot is running (Without Description)...")
 
 while True:
     projects = get_projects()
@@ -171,7 +179,6 @@ while True:
             full_project = {
                 "title": p["title"],
                 "link": p["link"],
-                "description": details["description"],
                 "budget": details["budget"],
                 "duration": details["duration"]
             }
