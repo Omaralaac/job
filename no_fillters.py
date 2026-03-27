@@ -8,8 +8,9 @@ import os
 # 🔑 بيانات البوت
 # ==============================
 
-import os
 
+print("TOKEN:", TOKEN)
+print("CHAT_ID:", CHAT_ID)
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
