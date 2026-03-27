@@ -7,8 +7,13 @@ import os
 # ==============================
 # 🔑 بيانات البوت
 # ==============================
-TOKEN = "8601457115:AAFD7Mb5WPVoGhmNWimiQpzAIhJTzLvb5mc"
-CHAT_ID = "1130472857"
+
+import os
+
+TOKEN = os.getenv("TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+#TOKEN = "8601457115:AAFD7Mb5WPVoGhmNWimiQpzAIhJTzLvb5mc"
+#CHAT_ID = "1130472857"
 
 # ==============================
 # 📁 ملف حفظ المشاريع
