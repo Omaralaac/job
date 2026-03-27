@@ -7,11 +7,9 @@ import os
 # ==============================
 # 🔑 بيانات البوت
 # ==============================
-
-
-
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
+
 if not TOKEN or not CHAT_ID:
     print("❌ TOKEN or CHAT_ID not found in environment variables!")
     exit(1)
@@ -34,17 +32,37 @@ def save_seen(seen):
 seen = load_seen()
 
 # ==============================
-# 📲 إرسال رسالة Telegram
+# 📲 إرسال رسالة Telegram (Buttons)
 # ==============================
-def send_telegram(message):
+def send_telegram(title, link):
     try:
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+
         data = {
             "chat_id": CHAT_ID,
-            "text": message
+            "text": f"🔥 *مشروع جديد:*\n{title}",
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "🔎 فتح المشروع",
+                            "url": link
+                        }
+                    ],
+                    [
+                        {
+                            "text": "💼 كل المشاريع",
+                            "url": "https://mostaql.com/projects"
+                        }
+                    ]
+                ]
+            })
         }
+
         res = requests.post(url, data=data)
         print("Sent:", res.json())
+
     except Exception as e:
         print("Telegram Error:", e)
 
@@ -92,14 +110,13 @@ def is_new(project):
 # ==============================
 # 🔁 تشغيل البوت
 # ==============================
-print("🚀 Bot is running (No Filter)...")
+print("🚀 Bot is running with buttons...")
 
 while True:
     projects = get_projects()
 
     for p in projects:
         if is_new(p):
-            message = f"🔥 مشروع جديد:\n{p['title']}\n{p['link']}"
-            send_telegram(message)
+            send_telegram(p['title'], p['link'])
 
     time.sleep(180)  # كل 3 دقايق
