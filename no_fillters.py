@@ -9,11 +9,12 @@ import os
 # ==============================
 
 
-print("TOKEN:", TOKEN)
-print("CHAT_ID:", CHAT_ID)
+
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-
+if not TOKEN or not CHAT_ID:
+    print("❌ TOKEN or CHAT_ID not found in environment variables!")
+    exit(1)
 
 # ==============================
 # 📁 ملف حفظ المشاريع
