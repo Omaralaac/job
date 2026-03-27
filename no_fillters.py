@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import time
 import json
 import os
-1
+
 # ==============================
 # 🔑 بيانات البوت
 # ==============================
@@ -110,36 +110,13 @@ def get_project_details(link):
         res = requests.get(link, headers=headers)
         soup = BeautifulSoup(res.text, "html.parser")
 
-        # جلب الميزانية من sidebar (نطاق السعر الكامل)
-        budget = "غير محدد"
-        try:
-            budget_elem = soup.select_one("td:contains('الميزانية') + td")
-            if not budget_elem:
-                # بديل لو الدعم لـ contains غير موجود في المكتبة
-                all_td = soup.find_all("td")
-                for i, td in enumerate(all_td):
-                    if "الميزانية" in td.text:
-                        budget_elem = all_td[i+1] if i+1 < len(all_td) else None
-                        break
-            if budget_elem:
-                budget = budget_elem.text.strip()
-        except:
-            pass
+        # الميزانية
+        budget_span = soup.select_one('div.meta-row:has(div.meta-label:contains("الميزانية")) span')
+        budget = budget_span.text.strip() if budget_span else "غير محدد"
 
-        # جلب مدة التنفيذ من sidebar
-        duration = "غير محدد"
-        try:
-            duration_elem = soup.select_one("td:contains('مدة التنفيذ') + td")
-            if not duration_elem:
-                all_td = soup.find_all("td")
-                for i, td in enumerate(all_td):
-                    if "مدة التنفيذ" in td.text:
-                        duration_elem = all_td[i+1] if i+1 < len(all_td) else None
-                        break
-            if duration_elem:
-                duration = duration_elem.text.strip()
-        except:
-            pass
+        # المدة
+        duration_div = soup.select_one('div.meta-row:has(div.meta-label:contains("مدة التنفيذ")) div.meta-value')
+        duration = duration_div.text.strip() if duration_div else "غير محدد"
 
         return {
             "budget": budget,
@@ -167,7 +144,7 @@ def is_new(project):
 # ==============================
 # 🔁 تشغيل البوت
 # ==============================
-print("🚀 Bot is running (Without Description)...")
+print("🚀 Bot is running (FULL DATA)...")
 
 while True:
     projects = get_projects()
